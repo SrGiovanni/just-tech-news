@@ -60,35 +60,33 @@ router.get('/', (req, res) => {
 
 // get a single post
 router.get('/:id', (req, res) => {
-  Post.findOne({
+  User.findOne({
+    attributes: { exclude: ['password'] },
     where: {
       id: req.params.id
     },
-    attributes: [
-      'id',
-      'post_url',
-      'title',
-      'created_at',
-      [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
-    ],
     include: [
       {
-        model: User,
-        attributes: ['username']
+        model: Post,
+        attributes: ['id', 'title', 'post_url', 'created_at']
+      },
+      // include the Comment model here:
+      {
+        model: Comment,
+        attributes: ['id', 'comment_text', 'created_at'],
+        include: {
+          model: Post,
+          attributes: ['title']
+        }
+      },
+      {
+        model: Post,
+        attributes: ['title'],
+        through: Vote,
+        as: 'voted_posts'
       }
     ]
   })
-    .then(dbPostData => {
-      if (!dbPostData) {
-        res.status(404).json({ message: 'No post found with this id' });
-        return;
-      }
-      res.json(dbPostData);
-    })
-    .catch(err => {
-      console.log(err);
-      res.status(500).json(err);
-    });
 });
 
 // update a post
