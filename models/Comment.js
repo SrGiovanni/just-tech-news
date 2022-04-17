@@ -10,7 +10,7 @@ Comment.init(
         primaryKey: true,
         autoIncrement: true
     },
-    comment_test:{
+    comment_text:{
         type: Sequelize.TEXT,
         allowNull: false,
         validate:{
